@@ -1,25 +1,30 @@
 import streamlit as st
-from PIL import Image
 import cv2
 import numpy as np
+from PIL import Image
+import json
 
-st.title("QR Code Scanner (OpenCV)")
+st.set_page_config(page_title="QR Code Scanner", page_icon="📷")
+st.title("📷 QR Code Scanner")
+st.write("Use your phone or laptop camera to scan a QR code.")
 
-uploaded_file = st.file_uploader("Upload an image with a QR code", type=["png", "jpg", "jpeg"])
+# Use Streamlit camera input
+img_file = st.camera_input("Take a photo of a QR code")
 
-if uploaded_file is not None:
-    image = Image.open(uploaded_file).convert('RGB')
-    st.image(image, caption="Uploaded Image", use_column_width=True)
+if img_file:
+    # Read image with PIL and convert to OpenCV format
+    img = Image.open(img_file)
+    img_np = np.array(img)
 
-    # Convert to OpenCV format
-    image_cv = np.array(image)
-    image_cv = cv2.cvtColor(image_cv, cv2.COLOR_RGB2BGR)
-
+    # Detect and decode QR code
     detector = cv2.QRCodeDetector()
-    data, bbox, _ = detector.detectAndDecode(image_cv)
+    data, points, _ = detector.detectAndDecode(img_np)
 
     if data:
-        st.success("QR Code detected:")
-        st.write(f"**Decoded Data:** {data}")
+        st.success("✅ QR Code Detected!")
+        try:
+            st.json(json.loads(data))
+        except:
+            st.write(data)
     else:
-        st.warning("No QR code found in the image.")
+        st.error("⚠️ No QR code found in the image.")
