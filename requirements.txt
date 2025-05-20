@@ -1,0 +1,6 @@
+streamlit
+opencv-python
+numpy
+neo4j
+qrcode
+pillow
